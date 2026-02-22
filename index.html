@@ -1,277 +1,270 @@
-import React, { useState } from 'react';
-import { 
-  BookOpen, 
-  Video, 
-  Presentation, 
-  Music, 
-  Image as ImageIcon, 
-  HelpCircle, 
-  CheckCircle2, 
-  ChevronDown, 
-  ChevronUp, 
-  Lightbulb,
-  ExternalLink,
-  PlayCircle
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>34. Топлинно излъчване - Работен лист</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & Babel for in-browser transpilation -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .formula-font { font-family: 'Georgia', serif; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div id="root"></div>
 
-// Подобрен компонент за математически формули
-const Formula = ({ children, className = "" }) => (
-  <span className={`font-serif italic text-xl inline-flex items-center gap-1 mx-1 ${className}`}>
-    {children}
-  </span>
-);
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('resources');
-  const [showHints, setShowHints] = useState({});
-  const [quizAnswers, setQuizAnswers] = useState({});
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
+        // Икони (Lucide-React подобни)
+        const Icon = ({ name, size = 20, className = "" }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
 
-  const toggleHint = (id) => {
-    setShowHints(prev => ({ ...prev, [id]: !prev[id] }));
-  };
+        const Formula = ({ children, className = "" }) => (
+            <span className={`formula-font italic text-xl inline-flex items-center gap-1 mx-1 ${className}`}>
+                {children}
+            </span>
+        );
 
-  const handleQuizChange = (questionId, value) => {
-    setQuizAnswers(prev => ({ ...prev, [questionId]: value }));
-  };
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('resources');
+            const [showHints, setShowHints] = useState({});
+            const [quizAnswers, setQuizAnswers] = useState({});
+            const [quizSubmitted, setQuizSubmitted] = useState(false);
 
-  const checkQuiz = () => {
-    setQuizSubmitted(true);
-  };
+            const toggleHint = (id) => {
+                setShowHints(prev => ({ ...prev, [id]: !prev[id] }));
+            };
 
-  const getEmbedUrl = (url) => {
-    return url.replace('/view?usp=sharing', '/preview');
-  };
+            const handleQuizChange = (questionId, value) => {
+                setQuizAnswers(prev => ({ ...prev, [questionId]: value }));
+            };
 
-  const resources = [
-    {
-      id: 'infographic',
-      title: "1. Инфографика (PDF)",
-      icon: ImageIcon,
-      link: "https://drive.google.com/file/d/1aVSFBc57OsPK226X7yTyznjoHk3pvXX4/view?usp=sharing",
-      height: "600px"
-    },
-    {
-      id: 'audio',
-      title: "2. Аудио урок",
-      icon: Music,
-      link: "https://drive.google.com/file/d/1vchsczEGKeBdy4cAkN0k9XTRcuBYDJkB/view?usp=sharing",
-      height: "150px"
-    },
-    {
-      id: 'presentation',
-      title: "3. Презентация",
-      icon: Presentation,
-      link: "https://drive.google.com/file/d/19EbShQg2MTJVbTxMZYBErCoIFT4yA12V/view?usp=sharing",
-      height: "500px"
-    },
-    {
-      id: 'video',
-      title: "4. Видео урок",
-      icon: Video,
-      link: "https://drive.google.com/file/d/1a-hjoXu_odWvLpCMp3ay_fPPvK4jH7La/view?usp=sharing",
-      height: "500px"
-    }
-  ];
+            const checkQuiz = () => {
+                setQuizSubmitted(true);
+            };
 
-  const tasks = [
-    { id: 1, title: "Задача 1: Изменение на цвета на желязото", text: "В затъмнено помещение наблюдавате къс желязо, който се нагрява. Отначало желязото е тъмно, след това изглежда червено, а при по-висока температура – жълто. Обяснете това чрез закона на Вин.", hint: "Законът на Вин гласи, че λmax · T = const. Когато температурата T расте, дължината на вълната λmax намалява.", logic: "T ↑ ⟹ λmax ↓" },
-    { id: 2, title: "Задача 2: Температура на звездите", text: "Някои звезди изглеждат червени, а други – сини. Повърхността на кои от тях е с по-висока температура? Обяснете.", hint: "λсиня < λчервена. Понеже λmax е обратнопропорционална на T, по-късата вълна значи по-висока температура.", logic: "Tсиня > Tчервена" },
-    { id: 3, title: "Задача 3: Излъчване на човешкото тяло", text: "Определете λmax за човешкото тяло при температура на кожата 34 °C.", hint: "T = 34 + 273 = 307 K. Използвайте λmax = (2.9 · 10^-3) / T.", logic: "λmax ≈ 9.4 μm" },
-    { id: 4, title: "Задача 4: Максимум при 560 nm", text: "При каква температура максимумът на интензитета е при 560 nm?", hint: "T = (2.9 · 10^-3) / λ. 560 nm = 560 · 10^-9 m.", logic: "T ≈ 5178 K" },
-    { id: 5, title: "Задача 5: Нарастване на мощността", text: "Колко пъти нараства мощността при нагряване от 27 °C до 327 °C?", hint: "T1=300K, T2=600K. T2/T1 = 2. P ∝ T^4.", logic: "2^4 = 16 пъти" },
-    { id: 6, title: "Задача 6: Начална температура", text: "Мощността нараства 5 1/16 пъти при увеличение на T със 100 K. Колко е T1?", hint: "P2/P1 = (T2/T1)^4 = 5.0625. Тогава T2/T1 = 1.5. T2 = T1 + 100.", logic: "T1 = 200 K" },
-    { id: 7, title: "Задача 7: Ултравиолетова катастрофа", text: "Проучете парадокса 'ултравиолетова катастрофа'.", hint: "Противоречие между класическата теория (мощност → ∞ при λ → 0) и експеримента.", logic: "Планк: E = hν" }
-  ];
+            const getEmbedUrl = (url) => {
+                return url.replace('/view?usp=sharing', '/preview');
+            };
 
-  const quizQuestions = [
-    { id: 'q1', question: "Абсолютно черно тяло е това, което:", options: ["Е боядисано в черен мат", "Поглъща цялото паднало върху него лъчение", "Не излъчва никаква енергия"], correct: 1 },
-    { id: 'q2', question: "Ако температурата на тяло се утрои (x3), мощността му P нараства:", options: ["3 пъти", "9 пъти", "81 пъти"], correct: 2 },
-    { id: 'q3', question: "Според закона на Вин, при нагряване максимумът на излъчване се мести към:", options: ["По-късите вълни", "По-дългите вълни", "Остава непроменен"], correct: 0 },
-    { id: 'q4', question: "Кой въвежда понятието 'квант' енергия?", options: ["Йозеф Стефан", "Вилхелм Вин", "Макс Планк"], correct: 2 },
-    { id: 'q5', question: "Енергията на един квант (E = hν) зависи правопропорционално от:", options: ["Дължината на вълната", "Честотата на лъчението", "Площта на тялото"], correct: 1 },
-    { id: 'q6', question: "При коя температура тялото спира да излъчва топлинно?", options: ["При 0 °C", "При -273.15 °C (0 K)", "Никога, всяко тяло излъчва"], correct: 1 }
-  ];
+            const resources = [
+                { id: 'infographic', title: "1. Инфографика (PDF)", icon: "image", link: "https://drive.google.com/file/d/1aVSFBc57OsPK226X7yTyznjoHk3pvXX4/view?usp=sharing", height: "600px" },
+                { id: 'audio', title: "2. Аудио урок", icon: "music", link: "https://drive.google.com/file/d/1vchsczEGKeBdy4cAkN0k9XTRcuBYDJkB/view?usp=sharing", height: "150px" },
+                { id: 'presentation', title: "3. Презентация", icon: "presentation", link: "https://drive.google.com/file/d/19EbShQg2MTJVbTxMZYBErCoIFT4yA12V/view?usp=sharing", height: "500px" },
+                { id: 'video', title: "4. Видео урок", icon: "video", link: "https://drive.google.com/file/d/1a-hjoXu_odWvLpCMp3ay_fPPvK4jH7La/view?usp=sharing", height: "500px" }
+            ];
 
-  const calculateScore = () => {
-    return quizQuestions.reduce((acc, q) => {
-      return acc + (quizAnswers[q.id] === q.correct ? 1 : 0);
-    }, 0);
-  };
+            const tasks = [
+                { id: 1, title: "Задача 1: Изменение на цвета на желязото", text: "В затъмнено помещение наблюдавате къс желязо, който се нагрява. Отначало желязото е тъмно, след това изглежда червено, а при по-висока температура – жълто. Обяснете това чрез закона на Вин.", hint: "Законът на Вин гласи, че λmax · T = const. Когато температурата T расте, дължината на вълната λmax намалява.", logic: "T ↑ ⟹ λmax ↓" },
+                { id: 2, title: "Задача 2: Температура на звездите", text: "Някои звезди изглеждат червени, а други – сини. Повърхността на кои от тях е с по-висока температура? Обяснете.", hint: "λсиня < λчервена. Понеже λmax е обратнопропорционална на T, по-късата вълна значи по-висока температура.", logic: "Tсиня > Tчервена" },
+                { id: 3, title: "Задача 3: Излъчване на човешкото тяло", text: "Определете λmax за човешкото тяло при температура на кожата 34 °C.", hint: "T = 34 + 273 = 307 K. Използвайте λmax = (2.9 · 10^-3) / T.", logic: "λmax ≈ 9.4 μm" },
+                { id: 4, title: "Задача 4: Максимум при 560 nm", text: "При каква температура максимумът на интензитета е при 560 nm?", hint: "T = (2.9 · 10^-3) / λ. 560 nm = 560 · 10^-9 m.", logic: "T ≈ 5178 K" },
+                { id: 5, title: "Задача 5: Нарастване на мощността", text: "Колко пъти нараства мощността при нагряване от 27 °C до 327 °C?", hint: "T1=300K, T2=600K. T2/T1 = 2. P ∝ T^4.", logic: "2^4 = 16 пъти" },
+                { id: 6, title: "Задача 6: Начална температура", text: "Мощността нараства 5 1/16 пъти при увеличение на T със 100 K. Колко е T1?", hint: "P2/P1 = (T2/T1)^4 = 5.0625. Тогава T2/T1 = 1.5. T2 = T1 + 100.", logic: "T1 = 200 K" },
+                { id: 7, title: "Задача 7: Ултравиолетова катастрофа", text: "Проучете парадокса 'ултравиолетова катастрофа'.", hint: "Противоречие между класическата теория (мощност → ∞ при λ → 0) и експеримента.", logic: "Планк: E = hν" }
+            ];
 
-  const score = calculateScore();
+            const quizQuestions = [
+                { id: 'q1', question: "Абсолютно черно тяло е това, което:", options: ["Е боядисано в черен мат", "Поглъща цялото паднало върху него лъчение", "Не излъчва никаква енергия"], correct: 1 },
+                { id: 'q2', question: "Ако температурата на тяло се утрои (x3), мощността му P нараства:", options: ["3 пъти", "9 пъти", "81 пъти"], correct: 2 },
+                { id: 'q3', question: "Според закона на Вин, при нагряване максимумът на излъчване се мести към:", options: ["По-късите вълни", "По-дългите вълни", "Остава непроменен"], correct: 0 },
+                { id: 'q4', question: "Кой въвежда понятието 'квант' енергия?", options: ["Йозеф Стефан", "Вилхелм Вин", "Макс Планк"], correct: 2 },
+                { id: 'q5', question: "Енергията на един квант (E = hν) зависи правопропорционално от:", options: ["Дължината на вълната", "Честотата на лъчението", "Площта на тялото"], correct: 1 },
+                { id: 'q6', question: "При коя температура тялото спира да излъчва топлинно?", options: ["При 0 °C", "При -273.15 °C (0 K)", "Никога, всяко тяло излъчва"], correct: 1 }
+            ];
 
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans p-2 md:p-8">
-      <header className="max-w-5xl mx-auto mb-8 text-center bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-        <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">34. Топлинно излъчване</h1>
-        <div className="h-1.5 w-32 bg-blue-600 mx-auto rounded-full mb-6"></div>
-        <p className="text-slate-600 font-medium">Интерактивен работен лист • Физика 10. клас</p>
-      </header>
+            const calculateScore = () => {
+                return quizQuestions.reduce((acc, q) => {
+                    return acc + (quizAnswers[q.id] === q.correct ? 1 : 0);
+                }, 0);
+            };
 
-      <nav className="max-w-5xl mx-auto mb-8 sticky top-4 z-40">
-        <div className="bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-white flex flex-wrap justify-center gap-2">
-          {[
-            { id: 'resources', label: 'Ресурси', icon: Video },
-            { id: 'theory', label: 'Теория', icon: BookOpen },
-            { id: 'tasks', label: 'Задачи', icon: Lightbulb },
-            { id: 'quiz', label: 'Тест', icon: CheckCircle2 }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
-                activeTab === tab.id 
-                  ? 'bg-blue-600 text-white shadow-md' 
-                  : 'text-slate-500 hover:bg-slate-100'
-              }`}
-            >
-              <tab.icon size={18} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </nav>
+            const score = calculateScore();
 
-      <main className="max-w-5xl mx-auto pb-20">
-        {activeTab === 'resources' && (
-          <div className="space-y-10 animate-in fade-in duration-700">
-            {resources.map(res => (
-              <div key={res.id} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-4 bg-slate-50 border-b flex justify-between items-center">
-                  <h3 className="font-bold text-slate-800 flex items-center gap-3">
-                    <span className="p-2 bg-blue-100 text-blue-600 rounded-lg"><res.icon size={20} /></span>
-                    {res.title}
-                  </h3>
-                  <div className="flex gap-4 items-center">
-                    <span className="text-xs text-slate-400 hidden sm:inline italic">Ако не тръгва, отвори линка:</span>
-                    <a href={res.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 font-bold text-sm bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100">
-                      <PlayCircle size={16} /> Отвори оригинал
-                    </a>
-                  </div>
+            return (
+                <div className="min-h-screen bg-slate-100 text-slate-900 p-2 md:p-8">
+                    <header className="max-w-5xl mx-auto mb-8 text-center bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                        <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">34. Топлинно излъчване</h1>
+                        <div className="h-1.5 w-32 bg-blue-600 mx-auto rounded-full mb-6"></div>
+                        <p className="text-slate-600 font-medium">Интерактивен работен лист • Физика 10. клас</p>
+                    </header>
+
+                    <nav className="max-w-5xl mx-auto mb-8 sticky top-4 z-40">
+                        <div className="bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-white flex flex-wrap justify-center gap-2">
+                            {[
+                                { id: 'resources', label: 'Ресурси', icon: "video" },
+                                { id: 'theory', label: 'Теория', icon: "book-open" },
+                                { id: 'tasks', label: 'Задачи', icon: "lightbulb" },
+                                { id: 'quiz', label: 'Тест', icon: "check-circle-2" }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+                                        activeTab === tab.id 
+                                            ? 'bg-blue-600 text-white shadow-md' 
+                                            : 'text-slate-500 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <Icon name={tab.icon} size={18} />
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                    </nav>
+
+                    <main className="max-w-5xl mx-auto pb-20">
+                        {activeTab === 'resources' && (
+                            <div className="space-y-10">
+                                {resources.map(res => (
+                                    <div key={res.id} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="p-4 bg-slate-50 border-b flex justify-between items-center">
+                                            <h3 className="font-bold text-slate-800 flex items-center gap-3">
+                                                <span className="p-2 bg-blue-100 text-blue-600 rounded-lg"><Icon name={res.icon} size={20} /></span>
+                                                {res.title}
+                                            </h3>
+                                            <div className="flex gap-4 items-center">
+                                                <a href={res.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 font-bold text-sm bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100">
+                                                    <Icon name="play-circle" size={16} /> Отвори оригинал
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="relative w-full bg-slate-200" style={{ height: res.height }}>
+                                            <iframe 
+                                                src={getEmbedUrl(res.link)} 
+                                                className="absolute inset-0 w-full h-full border-none"
+                                                allow="autoplay; encrypted-media"
+                                                title={res.title}
+                                            ></iframe>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {activeTab === 'theory' && (
+                            <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200">
+                                <h2 className="text-3xl font-black mb-10 text-slate-900 border-l-8 border-blue-600 pl-6 uppercase">Основни закони</h2>
+                                <div className="space-y-12">
+                                    <section className="bg-blue-50/50 p-8 rounded-2xl border border-blue-100">
+                                        <h3 className="text-xl font-bold mb-4 text-blue-900">Абсолютно черно тяло</h3>
+                                        <p className="text-slate-700 leading-relaxed italic text-lg">Поглъща цялото паднало лъчение и е идеалният излъчвател.</p>
+                                    </section>
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <section className="bg-red-50 p-8 rounded-2xl border border-red-100 flex flex-col items-center">
+                                            <h3 className="text-lg font-bold mb-6 text-red-800 uppercase tracking-widest">Закон на Стефан</h3>
+                                            <div className="bg-white px-10 py-8 rounded-3xl shadow-sm border border-red-200 mb-6 scale-110">
+                                                <Formula className="text-4xl text-red-600">P = σ S T<sup>4</sup></Formula>
+                                            </div>
+                                        </section>
+                                        <section className="bg-emerald-50 p-8 rounded-2xl border border-emerald-100 flex flex-col items-center">
+                                            <h3 className="text-lg font-bold mb-6 text-emerald-800 uppercase tracking-widest">Закон на Вин</h3>
+                                            <div className="bg-white px-8 py-8 rounded-3xl shadow-sm border border-emerald-200 mb-6 scale-110">
+                                                <Formula className="text-3xl text-emerald-600">λ<sub>max</sub> · T = 2.9 · 10<sup>-3</sup></Formula>
+                                            </div>
+                                        </section>
+                                    </div>
+                                    <section className="bg-purple-50 p-8 rounded-2xl border border-purple-100 flex flex-col items-center">
+                                        <h3 className="text-lg font-bold mb-6 text-purple-800 uppercase">Енергия на квантите</h3>
+                                        <div className="bg-white px-12 py-8 rounded-3xl shadow-sm border border-purple-200 mb-6">
+                                            <Formula className="text-4xl text-purple-600">E = h · ν</Formula>
+                                        </div>
+                                        <p className="text-slate-500 text-xs italic">h = 6.63 · 10<sup>-34</sup> J·s</p>
+                                    </section>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'tasks' && (
+                            <div className="space-y-8">
+                                {tasks.map(task => (
+                                    <div key={task.id} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div className="p-8">
+                                            <h4 className="font-black text-xl mb-4 text-slate-800">{task.title}</h4>
+                                            <p className="text-slate-600 text-lg mb-8 leading-relaxed">{task.text}</p>
+                                            <button onClick={() => toggleHint(task.id)} className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                {showHints[task.id] ? <Icon name="chevron-up" size={20} /> : <Icon name="lightbulb" size={20} />}
+                                                {showHints[task.id] ? "Скрий решението" : "Покажи стъпки"}
+                                            </button>
+                                            {showHints[task.id] && (
+                                                <div className="mt-6 p-8 bg-blue-50/50 rounded-2xl border border-blue-100">
+                                                    <p className="text-slate-700 mb-6 font-medium leading-relaxed">{task.hint}</p>
+                                                    <div className="bg-white p-6 rounded-2xl border border-blue-200 text-center shadow-inner">
+                                                        <Formula className="text-3xl text-blue-800">{task.logic}</Formula>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {activeTab === 'quiz' && (
+                            <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
+                                <h2 className="text-3xl font-black mb-10 text-slate-900 flex items-center gap-4">
+                                    <Icon name="check-circle-2" className="text-blue-600" size={32} /> Проверка на знанията
+                                </h2>
+                                <div className="space-y-10">
+                                    {quizQuestions.map((q, idx) => (
+                                        <div key={q.id} className="p-8 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm">
+                                            <p className="font-bold text-xl mb-8 flex gap-4"><span className="text-blue-500">0{idx + 1}.</span> {q.question}</p>
+                                            <div className="grid gap-4">
+                                                {q.options.map((opt, oIdx) => (
+                                                    <label key={oIdx} className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                        quizAnswers[q.id] === oIdx ? 'bg-blue-600 border-blue-600 text-white font-bold' : 'bg-white border-slate-200 hover:border-blue-400'
+                                                    } ${quizSubmitted && oIdx === q.correct ? 'ring-4 ring-green-400 border-green-500' : ''} ${quizSubmitted && quizAnswers[q.id] === oIdx && oIdx !== q.correct ? 'ring-4 ring-red-400 border-red-500' : ''}`}>
+                                                        <input type="radio" name={q.id} className="hidden" onChange={() => handleQuizChange(q.id, oIdx)} disabled={quizSubmitted} />
+                                                        <span className="text-lg">{opt}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-12">
+                                    {!quizSubmitted ? (
+                                        <button onClick={checkQuiz} className="w-full py-6 bg-slate-900 text-white rounded-3xl font-black text-2xl hover:bg-blue-600 transition-all shadow-2xl transform hover:scale-[1.02]">
+                                            ПРОВЕРИ МОИТЕ ОТГОВОРИ
+                                        </button>
+                                    ) : (
+                                        <div className="p-8 bg-green-600 text-white rounded-3xl shadow-2xl flex flex-col items-center gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <Icon name="check-circle-2" size={40} />
+                                                <span className="text-3xl font-black">РЕЗУЛТАТ: {score} / 6</span>
+                                            </div>
+                                            <div className="bg-white/20 px-6 py-2 rounded-full font-bold text-xl">
+                                                Успеваемост: {Math.round((score / 6) * 100)}%
+                                            </div>
+                                            <button onClick={() => {setQuizSubmitted(false); setQuizAnswers({});}} className="mt-4 px-8 py-3 bg-white/20 hover:bg-white/30 rounded-xl font-bold transition-colors">
+                                                Реши отново
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </main>
                 </div>
-                <div className="relative w-full bg-slate-200" style={{ height: res.height }}>
-                  <iframe 
-                    src={getEmbedUrl(res.link)} 
-                    className="absolute inset-0 w-full h-full border-none"
-                    allow="autoplay; encrypted-media"
-                    title={res.title}
-                  ></iframe>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            );
+        };
 
-        {activeTab === 'theory' && (
-          <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200 animate-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-3xl font-black mb-10 text-slate-900 border-l-8 border-blue-600 pl-6 uppercase">Основни закони</h2>
-            <div className="space-y-12">
-              <section className="bg-blue-50/50 p-8 rounded-2xl border border-blue-100">
-                <h3 className="text-xl font-bold mb-4 text-blue-900">Абсолютно черно тяло</h3>
-                <p className="text-slate-700 leading-relaxed italic text-lg">Поглъща цялото паднало лъчение и е идеалният излъчвател.</p>
-              </section>
-              <div className="grid md:grid-cols-2 gap-8">
-                <section className="bg-red-50 p-8 rounded-2xl border border-red-100 flex flex-col items-center">
-                  <h3 className="text-lg font-bold mb-6 text-red-800">Закон на Стефан</h3>
-                  <div className="bg-white px-10 py-8 rounded-3xl shadow-sm border border-red-200 mb-6 scale-110">
-                    <Formula className="text-4xl text-red-600">P = σ S T<sup>4</sup></Formula>
-                  </div>
-                </section>
-                <section className="bg-emerald-50 p-8 rounded-2xl border border-emerald-100 flex flex-col items-center">
-                  <h3 className="text-lg font-bold mb-6 text-emerald-800">Закон на Вин</h3>
-                  <div className="bg-white px-8 py-8 rounded-3xl shadow-sm border border-emerald-200 mb-6 scale-110">
-                    <Formula className="text-3xl text-emerald-600">λ<sub>max</sub> · T = 2.9 · 10<sup>-3</sup></Formula>
-                  </div>
-                </section>
-              </div>
-              <section className="bg-purple-50 p-8 rounded-2xl border border-purple-100 flex flex-col items-center">
-                <h3 className="text-lg font-bold mb-6 text-purple-800 uppercase">Енергия на квантите</h3>
-                <div className="bg-white px-12 py-8 rounded-3xl shadow-sm border border-purple-200 mb-6">
-                  <Formula className="text-4xl text-purple-600">E = h · ν</Formula>
-                </div>
-                <p className="text-slate-500 text-xs italic">h = 6.63 · 10<sup>-34</sup> J·s</p>
-              </section>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'tasks' && (
-          <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-            {tasks.map(task => (
-              <div key={task.id} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-8">
-                  <h4 className="font-black text-xl mb-4 text-slate-800">{task.title}</h4>
-                  <p className="text-slate-600 text-lg mb-8 leading-relaxed">{task.text}</p>
-                  <button onClick={() => toggleHint(task.id)} className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                    {showHints[task.id] ? <ChevronUp size={20} /> : <Lightbulb size={20} />}
-                    {showHints[task.id] ? "Скрий решението" : "Покажи стъпки"}
-                  </button>
-                  {showHints[task.id] && (
-                    <div className="mt-6 p-8 bg-blue-50/50 rounded-2xl border border-blue-100 animate-in slide-in-from-top-4">
-                      <p className="text-slate-700 mb-6 font-medium leading-relaxed">{task.hint}</p>
-                      <div className="bg-white p-6 rounded-2xl border border-blue-200 text-center shadow-inner">
-                        <Formula className="text-3xl text-blue-800">{task.logic}</Formula>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === 'quiz' && (
-          <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
-            <h2 className="text-3xl font-black mb-10 text-slate-900 flex items-center gap-4">
-              <CheckCircle2 className="text-blue-600" size={32} /> Проверка на знанията
-            </h2>
-            <div className="space-y-10">
-              {quizQuestions.map((q, idx) => (
-                <div key={q.id} className="p-8 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm">
-                  <p className="font-bold text-xl mb-8 flex gap-4"><span className="text-blue-500">0{idx + 1}.</span> {q.question}</p>
-                  <div className="grid gap-4">
-                    {q.options.map((opt, oIdx) => (
-                      <label key={oIdx} className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                        quizAnswers[q.id] === oIdx ? 'bg-blue-600 border-blue-600 text-white font-bold' : 'bg-white border-slate-200 hover:border-blue-400'
-                      } ${quizSubmitted && oIdx === q.correct ? 'ring-4 ring-green-400 border-green-500' : ''} ${quizSubmitted && quizAnswers[q.id] === oIdx && oIdx !== q.correct ? 'ring-4 ring-red-400 border-red-500' : ''}`}>
-                        <input type="radio" name={q.id} className="hidden" onChange={() => handleQuizChange(q.id, oIdx)} disabled={quizSubmitted} />
-                        <span className="text-lg">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-12 sticky bottom-4">
-              {!quizSubmitted ? (
-                <button onClick={checkQuiz} className="w-full py-6 bg-slate-900 text-white rounded-3xl font-black text-2xl hover:bg-blue-600 transition-all shadow-2xl transform hover:scale-[1.02]">
-                  ПРОВЕРИ МОИТЕ ОТГОВОРИ
-                </button>
-              ) : (
-                <div className="p-8 bg-green-600 text-white rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in slide-in-from-bottom-8">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 size={40} />
-                    <span className="text-3xl font-black">РЕЗУЛТАТ: {score} / 6</span>
-                  </div>
-                  <div className="bg-white/20 px-6 py-2 rounded-full font-bold text-xl">
-                    Успеваемост: {Math.round((score / 6) * 100)}%
-                  </div>
-                  <p className="font-bold text-center mt-2 italic text-green-50">
-                    {score === 6 ? "Отлично! Ти си квантов експерт!" : score >= 4 ? "Много добре! Почти успя!" : "Продължавай да учиш, ти можеш повече!"}
-                  </p>
-                  <button onClick={() => {setQuizSubmitted(false); setQuizAnswers({});}} className="mt-4 px-8 py-3 bg-white/20 hover:bg-white/30 rounded-xl font-bold transition-colors">
-                    Реши отново
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
-  );
-};
-
-export default App;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
